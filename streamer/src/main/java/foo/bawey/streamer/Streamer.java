@@ -39,22 +39,26 @@ public class Streamer implements Runnable {
     }
 
     public static void main(String[] args) throws Exception {
-        Streamer streamer = new Streamer(new URL(args[0]));
+        String url = "https://1f3mguoorurpkou6.ezcdn654.net:8443/hls/mo722nr.m3u8?s=Vw1lsAF5B9BpVltzn2HqnQ&e=1621128762";
+        Streamer streamer = new Streamer(new URL(url));
         streamer.run();
     }
 
     public List<URL> fetchPlaylistAndGrabUrls(URL url) {
         List<URL> newUrls = new LinkedList<>();
+        logger.info("Requesting playlist from: " + url);
         try (InputStream stream = url.openStream()) {
 
             byte[] bytes = stream.readAllBytes();
             String content = new String(bytes, Charset.defaultCharset().name());
             for (String line : content.split(System.lineSeparator())) {
                 if (line.endsWith(".ts")) {
-                    newUrls.add(new URL(url.getProtocol(), url.getHost(), url.getPort(),
-                            url.getPath().replace("index.m3u8", line)));
+                    String subPath = url.getPath();
+                    subPath = subPath.substring(0, subPath.lastIndexOf("/") + 1);
+                    newUrls.add(new URL(url.getProtocol(), url.getHost(), url.getPort(), subPath + line));
                 }
             }
+            logger.info(String.format("Fetched %d segment URLs", newUrls.size()));
             return newUrls;
 
         } catch (IOException ioe) {
@@ -64,6 +68,7 @@ public class Streamer implements Runnable {
     }
 
     public void consumeSegmentUrl(URL url) {
+        logger.info("Consuming segment URL: " + url);
         URI uri;
         try {
             uri = url.toURI();
@@ -94,7 +99,8 @@ public class Streamer implements Runnable {
 
     @Override
     public void run() {
-        Flux<URL> urlFlux = Flux.interval(Duration.ofMillis(1000)).takeWhile((l) -> this.goOn)
+        logger.info(String.format("Launching to fetch from: %s", this.playlistUrl.toString()));
+        Flux<URL> urlFlux = Flux.interval(Duration.ofMillis(4000)).takeWhile((l) -> this.goOn)
                 .flatMapIterable(l -> this.fetchPlaylistAndGrabUrls(this.playlistUrl)).distinct().doOnComplete(() -> {
                     this.goOn = false;
                 }).doOnError((Throwable error) -> {
@@ -103,7 +109,7 @@ public class Streamer implements Runnable {
         urlFlux.subscribe(this::consumeSegmentUrl);
         while (goOn) {
             try {
-                Thread.sleep(2000);
+                Thread.sleep(5000);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }

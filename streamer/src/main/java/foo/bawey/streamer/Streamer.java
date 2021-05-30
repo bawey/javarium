@@ -10,6 +10,7 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.MessageFormat;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.HashSet;
@@ -39,7 +40,8 @@ public class Streamer implements Runnable {
     }
 
     public static void main(String[] args) throws Exception {
-        String url = "https://1f3mguoorurpkou6.ezcdn654.net:8443/hls/mo722nr.m3u8?s=Vw1lsAF5B9BpVltzn2HqnQ&e=1621128762";
+        String url = args[0];
+        logger.info(MessageFormat.format("Starting streamer for URL: {0}", url));
         Streamer streamer = new Streamer(new URL(url));
         streamer.run();
     }

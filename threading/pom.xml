@@ -9,8 +9,6 @@
   <version>1.0-SNAPSHOT</version>
 
   <name>threading</name>
-  <!-- FIXME change it to the project's website -->
-  <url>http://www.example.com</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -22,13 +20,13 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
-      <version>5.7.1</version>
+      <version>5.7.2</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
-      <version>5.7.1</version>
+      <version>5.7.2</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -77,5 +75,15 @@
         </plugin>
       </plugins>
     </pluginManagement>
+      <plugins>
+          <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-compiler-plugin</artifactId>
+              <configuration>
+                  <source>11</source>
+                  <target>11</target>
+              </configuration>
+          </plugin>
+      </plugins>
   </build>
 </project>
